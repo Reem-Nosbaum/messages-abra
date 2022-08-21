@@ -45,12 +45,11 @@ def signup():
     username = request.form['username']
     password = request.form['password']
     if Users.query.filter_by(username=username).all():  # checking if username already exists in the db
-        return make_response(jsonify({'task': 'signup', 'status': 'failed', 'reason': 'username already exists'}))  # add the right status code
+        return make_response(jsonify({'task': 'signup', 'status': 'failed', 'reason': 'username already exists'}), 409)
     hashed_password = generate_password_hash(password, method='sha256')
     new_user = Users(public_id=str(uuid.uuid4()), username=username, password=hashed_password)
     db.session.add(new_user)  # adding the new user to the db
     db.session.commit()
-    session['user'] = username
     return make_response(jsonify({'task': 'signup', 'status': 'success'}), 200)
 
 
@@ -61,7 +60,6 @@ def login():
     user: list[Users] = Users.query.filter_by(username=username).all()
     # checking if the user and password are in the db
     if user and check_password_hash(user[0].password, password):
-        session['user'] = username
         session['user_id'] = user[0].id
         return make_response(jsonify({'task': 'login', 'status': 'success'}), 200)
     return make_response(jsonify({'task': 'login', 'status': 'failed'}), 401)
@@ -69,45 +67,63 @@ def login():
 
 @app.route("/logout", methods=['DELETE'])
 def logout():
-    if 'user' in session:
+    if 'user_id' in session:
         session.pop('user')  # removing the username from the session
+        session.pop('user_id')
         return make_response(jsonify({'task': 'logout', 'status': 'success'}), 200)
     return make_response(jsonify({'task': 'logout', 'status': 'failed'}), 401)
 
 
 @app.route('/messages', methods=['GET', 'POST'])
-def messages():
-    if 'user' in session:
-        all_messages = Messages.query.filter_by(read=False).all()
+def get_all_messages():
+    if 'user_id' not in session:
+        return make_response(jsonify(
+            {'task': 'get or post message', 'status': 'failed', 'reason': 'user not authenticated'}), 401)
+
+    if request.method == 'GET':
+        if 'read' in request.args:
+            all_messages = Messages.query.filter_by(read=False).all()
+        else:
+            all_messages = Messages.query.filter_by().all()
         all_dict_messages = [message.get_dict() for message in all_messages]
-        if request.method == 'GET':
-            return make_response(jsonify(all_dict_messages), 200)
-        elif request.method == 'POST':
-            receiver = request.form['receiver']
+
+        for message in all_messages:  # updating the status of the messages
+            message.read = True
+        db.session.commit()
+        return make_response(jsonify(all_dict_messages), 200)
+
+    elif request.method == 'POST':
+        if 'receiver' and 'subject' and 'message' in request.form:
+            receiver = request.form['receiver']  # check if user id in exists
             subject = request.form['subject']
             message = request.form['message']
             new_message = Messages(sender=session['user_id'], receiver=receiver, subject=subject, message=message, read=False)
             db.session.add(new_message)  # adding the new message to the db
             db.session.commit()
-            return make_response(jsonify({'task': 'message', 'status': 'success'}))  # add status
-    return make_response(jsonify({'task': 'get or post message', 'status': 'failed', 'reason': 'user not authenticated'}))  # add status
+            return make_response(jsonify({'task': 'message', 'status': 'success'}), 200)  # add status
+        return make_response(jsonify({'task': 'message', 'status': 'failed'}), 401)
 
 
 @app.route('/messages/<int:id_>', methods=['GET', 'DELETE'])
 def message_by_id(id_):
-    get_message_by_id = Messages.query.filter_by(id=id_).all()
-    all_dict_messages = [message.get_dict() for message in get_message_by_id]
-    if 'user' in session:
-        if request.method == 'GET':
-            Messages.query.filter_by(id=id_).update(dict(read=True))
+    if 'user_id' not in session:
+        return make_response(jsonify({'task': 'get or post message', 'status': 'failed', 'reason': 'user not authenticated'}), 401)
+
+    get_message_by_id: list[Messages] = Messages.query.filter_by(id=id_).all()  # getting the message by id
+    if request.method == 'GET':
+        all_dict_messages: list[dict] = [message.get_dict() for message in get_message_by_id]
+        if get_message_by_id and not get_message_by_id[0].read:
+            get_message_by_id[0].read = True
             db.session.commit()
-            return all_dict_messages
-        elif request.method == 'DELETE':
+        return make_response(jsonify(all_dict_messages), 200)
+
+    elif request.method == 'DELETE':
+        if get_message_by_id:
             Messages.query.filter_by(id=id_).delete()
             db.session.commit()
             return make_response(jsonify({'task': 'delete a message', 'status': 'success'}), 200)
-        return make_response(jsonify({'task': 'delete a message', 'status': 'failed'}), 401)
-    return make_response(jsonify({'task': 'get or post message', 'status': 'failed', 'reason': 'user not authenticated'}))  # add status
+        return make_response(jsonify({'task': 'delete a message', 'status': 'failed',
+                                      'reason': 'message not exists'}), 200)
 
 if __name__ == '__main__':
     app.run(debug=True)
