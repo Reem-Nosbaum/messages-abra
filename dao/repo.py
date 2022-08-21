@@ -1,7 +1,7 @@
-from run import Users
-from run import Messages
+from app import Users
+from app import Messages
 from werkzeug.security import check_password_hash, generate_password_hash
-from run import db
+from app import db
 import uuid
 
 
