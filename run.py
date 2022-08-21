@@ -79,8 +79,6 @@ def messages():
         all_messages = Messages.query.filter_by(read=False).all()
         all_dict_messages = [message.get_dict() for message in all_messages]
         if request.method == 'GET':
-            read_message = Messages(read=True)
-            print(read_message)
             return make_response(jsonify(all_dict_messages), 200)
         elif request.method == 'POST':
             receiver = request.form['receiver']
@@ -95,10 +93,12 @@ def messages():
 
 @app.route('/messages/<int:id_>', methods=['GET', 'DELETE'])
 def message_by_id(id_):
-    all_messages = Messages.query.filter_by(sender=id_).all()
-    all_dict_messages = [message.get_dict() for message in all_messages]
+    get_message_by_id = Messages.query.filter_by(id=id_).all()
+    all_dict_messages = [message.get_dict() for message in get_message_by_id]
     if 'user' in session:
         if request.method == 'GET':
+            Messages.query.filter_by(id=id_).update(dict(read=True))
+            db.session.commit()
             return all_dict_messages
         elif request.method == 'DELETE':
             Messages.query.filter_by(id=id_).delete()
@@ -106,7 +106,6 @@ def message_by_id(id_):
             return make_response(jsonify({'task': 'delete a message', 'status': 'success'}), 200)
         return make_response(jsonify({'task': 'delete a message', 'status': 'failed'}), 401)
     return make_response(jsonify({'task': 'get or post message', 'status': 'failed', 'reason': 'user not authenticated'}))  # add status
-
 
 if __name__ == '__main__':
     app.run(debug=True)
