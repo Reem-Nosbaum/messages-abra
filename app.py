@@ -10,7 +10,7 @@ app.secret_key = 'not protected'  # creating a session
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///abra.sqlite"  # sql database
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://oluoxsrfnhpcjt:5a602a2716aa4f8818d7a8661160c045f2c8b75530325bfbd7530a31c204b742@ec2-54-86-106-48.compute-1.amazonaws.com:5432/dfpe2vq4pqscri"  # sql database
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
