@@ -8,7 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 app.secret_key = 'not protected'  # creating a session
 # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///abra.sqlite"  # sql database
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://zmnskvfhrxvbec:dff64fbbea9bcb3455d3c7db2fbc56a21a8124c87b0d16250639f1af25c5309e@ec2-44-206-137-96.compute-1.amazonaws.com:5432/ddep2vq95b1lf4"  # sql database
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://oluoxsrfnhpcjt:5a602a2716aa4f8818d7a8661160c045f2c8b75530325bfbd7530a31c204b742@ec2-54-86-106-48.compute-1.amazonaws.com:5432/dfpe2vq4pqscri"  # sql database
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
