@@ -92,8 +92,8 @@ def get_all_messages():
         db.session.commit()
         return make_response(jsonify(all_dict_messages), 200)
     elif request.method == 'POST':
-        receiver: list[Messages] = Messages.query.filter_by(receiver=receiver).all()  # check if receiver id in exists
-        if receiver and 'subject' and 'message' in request.form:
+        if 'receiver' and 'subject' and 'message' in request.form:
+            if receiver: list[Messages] = Messages.query.filter_by(receiver=receiver).all()  # check if receiver id in exists
             receiver = request.form['receiver']
             subject = request.form['subject']
             message = request.form['message']
