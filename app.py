@@ -80,7 +80,6 @@ def get_all_messages():
     if 'user_id' not in session:
         return make_response(jsonify(
             {'task': 'get or post message', 'status': 'failed', 'reason': 'user not authenticated'}), 401)
-
     if request.method == 'GET':
         if 'unread' in request.args:
             all_messages = Messages.query.filter_by(read=False, sender=session['user_id']).all()
@@ -107,12 +106,10 @@ def get_all_messages():
 def message_by_id(id_):
     if 'user_id' not in session:
         return make_response(jsonify({'task': 'get or post message', 'status': 'failed', 'reason': 'user not authenticated'}), 401)
-
     get_message_by_id: list[Messages] = Messages.query.filter_by(id=id_).all()  # getting the message by id
     if request.method == 'GET':
         all_dict_messages: list[dict] = [message.get_dict() for message in get_message_by_id]
         return make_response(jsonify(all_dict_messages), 200)
-
     elif request.method == 'DELETE':
         if get_message_by_id:
             Messages.query.filter_by(id=id_).delete()

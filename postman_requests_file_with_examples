@@ -1,38 +1,40 @@
 step 1:
 - Signup -
-method Post: https://messages-app-abra.herokuapp.com/signup
+method POST: https://messages-app-abra.herokuapp.com/signup
 body > form-data
 username: abra
 password: 123456
 
 step 2:
 - Login -
-method Post: https://messages-app-abra.herokuapp.com/login
+method POST: https://messages-app-abra.herokuapp.com/login
 body > form-data
 username: abra
 password: 123456
 
 step 3:
 - Write message -
-method Post: https://messages-app-abra.herokuapp.com/messages
+method POST: https://messages-app-abra.herokuapp.com/messages
 body > form-data
 receiver: 1
 subject: Hi
 message: hello word
 
 step 4:
-- Get all messages -
-method Get: https://messages-app-abra.herokuapp.com/messages
+- Get all messages for a specific user -
+method GET https://messages-app-abra.herokuapp.com/messages
 
 step 5:
-- Get all message by id -
-method Get: https://messages-app-abra.herokuapp.com/messages/<input_message_id>
-* example *
-method Get: https://messages-app-abra.herokuapp.com/messages/4
-- NOTE - if you sand a Get request.
- note that "READ" = FALSE,
- if you sand another get request it will turn as TRUE.
+- Get all unread messages for a specific user -
+method GET: https://messages-app-abra.herokuapp.com/messages?unread
 
 step 6:
-- Delete message -
-method Delete: https://messages-app-abra.herokuapp.com/messages/<input_message_id>
+- Read message (return one message) -
+method GET: https://messages-app-abra.herokuapp.com/messages/<input_message_id>
+* example *
+method Get: https://messages-app-abra.herokuapp.com/messages/4
+
+
+step 6:
+- Delete message (as owner or as receiver) -
+method DELETE: https://messages-app-abra.herokuapp.com/messages/<input_message_id>
