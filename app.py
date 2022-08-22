@@ -67,9 +67,8 @@ def login():
 
 @app.route("/logout", methods=['DELETE'])
 def logout():
-    if 'user_id' in session:
+    if 'user' in session:
         session.pop('user')  # removing the username from the session
-        session.pop('user_id')
         return make_response(jsonify({'task': 'logout', 'status': 'success'}), 200)
     return make_response(jsonify({'task': 'logout', 'status': 'failed'}), 401)
 
