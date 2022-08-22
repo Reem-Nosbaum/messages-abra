@@ -7,7 +7,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'not protected'  # creating a session
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///abra.sqlite"  # sql database
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://oluoxsrfnhpcjt:5a602a2716aa4f8818d7a8661160c045f2c8b75530325bfbd7530a31c204b742@ec2-54-86-106-48.compute-1.amazonaws.com:5432/dfpe2vq4pqscri"  # sql database
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -108,7 +107,7 @@ def message_by_id(id_):
     if 'user_id' not in session:
         return make_response(jsonify({'task': 'get or post message', 'status': 'failed', 'reason': 'user not authenticated'}), 401)
 
-    get_message_by_id: list[Messages] = Messages.query.filter_by(id=id_).all()  # getting the message by id
+    get_message_by_id: list[Messages] = Messages.query.filter_by(sender=id_).all()  # getting the message by id
     if request.method == 'GET':
         all_dict_messages: list[dict] = [message.get_dict() for message in get_message_by_id]
         if get_message_by_id and not get_message_by_id[0].read:

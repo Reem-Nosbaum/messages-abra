@@ -1,0 +1,38 @@
+step 1:
+Signup
+method post: https://messages-app-abra.herokuapp.com/signup
+body > form-data
+username:
+password:
+* example *
+username: abra
+password: 123456
+
+step 2:
+Login
+method post: https://messages-app-abra.herokuapp.com/login
+body > form-data
+username:
+password:
+
+step 3:
+Write message
+method post: https://messages-app-abra.herokuapp.com/messages
+body > form-data
+receiver:
+subject:
+message:
+* example *
+receiver: 1
+subject: Hi
+message: hello word
+
+step 4:
+Get all unread messages
+method get: https://messages-app-abra.herokuapp.com/messages
+
+step 5:
+read one message
+
+
+
