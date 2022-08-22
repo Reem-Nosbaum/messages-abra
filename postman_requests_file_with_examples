@@ -1,46 +1,38 @@
 step 1:
-Signup
+- Signup -
 method Post: https://messages-app-abra.herokuapp.com/signup
 body > form-data
-username:
-password:
-* example *
 username: abra
 password: 123456
 
 step 2:
-Login
+- Login -
 method Post: https://messages-app-abra.herokuapp.com/login
 body > form-data
-username:
-password:
+username: abra
+password: 123456
 
 step 3:
-Write message
+- Write message -
 method Post: https://messages-app-abra.herokuapp.com/messages
 body > form-data
-receiver:
-subject:
-message:
-* example *
 receiver: 1
 subject: Hi
 message: hello word
 
 step 4:
-Get all messages
+- Get all messages -
 method Get: https://messages-app-abra.herokuapp.com/messages
 
 step 5:
-Get all message by id
+- Get all message by id -
 method Get: https://messages-app-abra.herokuapp.com/messages/<input_message_id>
 * example *
-method Get: https://messages-app-abra.herokuapp.com/messages/3
+method Get: https://messages-app-abra.herokuapp.com/messages/4
 - NOTE - if you sand a Get request.
  note that "READ" = FALSE,
  if you sand another get request it will turn as TRUE.
 
-
 step 6:
-Delete message
+- Delete message -
 method Delete: https://messages-app-abra.herokuapp.com/messages/<input_message_id>
