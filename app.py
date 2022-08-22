@@ -7,10 +7,13 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'not protected'  # creating a session
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://oluoxsrfnhpcjt:5a602a2716aa4f8818d7a8661160c045f2c8b75530325bfbd7530a31c204b742@ec2-54-86-106-48.compute-1.amazonaws.com:5432/dfpe2vq4pqscri"  # sql database
-
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://oluoxsrfnhpcjt:5a602a2716aa4f8818d7a8661160c045f2c8b75530325bfbd7530a31c204b742@ec2-54-86-106-48.compute-1.amazonaws.com:5432/dfpe2vq4pqscri"  # sql database
+
+# sqlite database, for local check
+# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///abra.sqlite"
 
 
 class Users(db.Model):
@@ -56,15 +59,15 @@ def signup():
 def login():
     password: str = request.form['password']
     username: str = request.form['username']
-    user: list[Users] = Users.query.filter_by(username=username).all()
     # checking if the user and password are in the db
+    user: list[Users] = Users.query.filter_by(username=username).all()
     if user and check_password_hash(user[0].password, password):
         session['user_id'] = user[0].id
         return make_response(jsonify({'task': 'login', 'status': 'success'}), 200)
     return make_response(jsonify({'task': 'login', 'status': 'failed'}), 401)
 
 
-@app.route("/logout", methods=['DELETE'])
+@app.route("/logout", methods=['POST'])
 def logout():
     if 'user_id' in session:
         session.pop('user_id')
@@ -79,26 +82,25 @@ def get_all_messages():
             {'task': 'get or post message', 'status': 'failed', 'reason': 'user not authenticated'}), 401)
 
     if request.method == 'GET':
-        if 'read' in request.args:
-            all_messages = Messages.query.filter_by(read=False).all()
+        if 'unread' in request.args:
+            all_messages = Messages.query.filter_by(read=False, sender=session['user_id']).all()
         else:
-            all_messages = Messages.query.filter_by().all()
+            all_messages = Messages.query.filter_by(sender=session['user_id']).all()
         all_dict_messages = [message.get_dict() for message in all_messages]
-
-        for message in all_messages:  # updating the status of the messages
+        for message in all_messages:
             message.read = True
         db.session.commit()
         return make_response(jsonify(all_dict_messages), 200)
-
     elif request.method == 'POST':
         if 'receiver' and 'subject' and 'message' in request.form:
-            receiver = request.form['receiver']  # check if user id in exists
+            receiver = request.form['receiver']
+            receiver: list[Messages] = Messages.query.filter_by(receiver=receiver).all()  #check if receiver id in exists
             subject = request.form['subject']
             message = request.form['message']
             new_message = Messages(sender=session['user_id'], receiver=receiver, subject=subject, message=message, read=False)
             db.session.add(new_message)  # adding the new message to the db
             db.session.commit()
-            return make_response(jsonify({'task': 'message', 'status': 'success'}), 200)  # add status
+            return make_response(jsonify({'task': 'message', 'status': 'success'}), 200)
         return make_response(jsonify({'task': 'message', 'status': 'failed'}), 401)
 
 
@@ -110,9 +112,6 @@ def message_by_id(id_):
     get_message_by_id: list[Messages] = Messages.query.filter_by(id=id_).all()  # getting the message by id
     if request.method == 'GET':
         all_dict_messages: list[dict] = [message.get_dict() for message in get_message_by_id]
-        if get_message_by_id and not get_message_by_id[0].read:
-            get_message_by_id[0].read = True
-            db.session.commit()
         return make_response(jsonify(all_dict_messages), 200)
 
     elif request.method == 'DELETE':
