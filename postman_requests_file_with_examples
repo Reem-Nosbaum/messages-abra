@@ -28,15 +28,19 @@ subject: Hi
 message: hello word
 
 step 4:
-Get all unread messages
+Get all messages
 method Get: https://messages-app-abra.herokuapp.com/messages
 
 step 5:
-Get all messages for a specific user
-method Get: https://messages-app-abra.herokuapp.com/messages/<input_user_id>
+Get all message by id
+method Get: https://messages-app-abra.herokuapp.com/messages/<input_message_id>
 * example *
-method Get: https://messages-app-abra.herokuapp.com/messages/2
+method Get: https://messages-app-abra.herokuapp.com/messages/3
+- NOTE - if you sand a Get request.
+ note that "READ" = FALSE,
+ if you sand another get request it will turn as TRUE.
+
 
 step 6:
 Delete message
-method Delete: https://messages-app-abra.herokuapp.com/messages/
+method Delete: https://messages-app-abra.herokuapp.com/messages/<input_message_id>
